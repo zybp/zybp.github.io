@@ -4,11 +4,36 @@
   
   
   <entry>
+    <title>待阅目录</title>
+    <link href="/2024/03/19/%E5%BE%85%E9%98%85%E7%9B%AE%E5%BD%95/"/>
+    <url>/2024/03/19/%E5%BE%85%E9%98%85%E7%9B%AE%E5%BD%95/</url>
+    
+    <content type="html"><![CDATA[<h1 id="2024年待阅（正阅）书籍-（会更新）"><a href="#2024年待阅（正阅）书籍-（会更新）" class="headerlink" title="2024年待阅（正阅）书籍 （会更新）"></a>2024年待阅（正阅）书籍 <em>（会更新）</em></h1><p>-深入理解计算机系统<br>-计算机网络 <strong>（略读）</strong><br>-现代操作系统<br>-考研单词词汇 <strong>（重点）</strong></p><blockquote><p><strong>做到每周汇总</strong></p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>内功学习</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>图书</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>CS:APP学习目录（持续更新）</title>
     <link href="/2024/03/19/text1/"/>
     <url>/2024/03/19/text1/</url>
     
-    <content type="html"><![CDATA[]]></content>
+    <content type="html"><![CDATA[<p><strong>待更新</strong>  <em>（预计下次更新为3月24）</em></p>]]></content>
     
     
     <categories>
@@ -23,19 +48,6 @@
       <tag>计算机系统</tag>
       
     </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="/2024/03/13/hello-world/"/>
-    <url>/2024/03/13/hello-world/</url>
-    
-    <content type="html"><![CDATA[<!-- Welcome to [Hexo](https://hexo.io/)! This is your very first post. Check [documentation](https://hexo.io/docs/) for more info. If you get any problems when using Hexo, you can find the answer in [troubleshooting](https://hexo.io/docs/troubleshooting.html) or you can ask me on [GitHub](https://github.com/hexojs/hexo/issues).## Quick Start### Create a new post<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a> –&gt;、<br>hello</p><h2 id="HELLO-WORLD"><a href="#HELLO-WORLD" class="headerlink" title="HELLO WORLD"></a>HELLO WORLD</h2>]]></content>
-    
-    
     
   </entry>
   
