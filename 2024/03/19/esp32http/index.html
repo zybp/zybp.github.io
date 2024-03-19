@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/1.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZYBPP">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本次使用的开发板为和宙esp32c3，使用的IDE为vscode+espidf程序整体流程：以下为程序详解WiFi连接首先使能nvs，将等下使用的WiFi账号及密码储存到nvs上  NVS介绍：官方介绍比较繁杂。通俗来说，NVS 就是在  flash 上分配的一块内存空间 ，提供给用户保存掉电不丢失的数据 。进入主题，我们需要将esp32连接WiFi，此时使用为WIFI STATION模式，下面给">
+<meta property="og:type" content="article">
+<meta property="og:title" content="esp32通过wifi进行http请求获得天气信息（半成品）">
+<meta property="og:url" content="http://example.com/2024/03/19/esp32http/index.html">
+<meta property="og:site_name" content="流水不争先">
+<meta property="og:description" content="本次使用的开发板为和宙esp32c3，使用的IDE为vscode+espidf程序整体流程：以下为程序详解WiFi连接首先使能nvs，将等下使用的WiFi账号及密码储存到nvs上  NVS介绍：官方介绍比较繁杂。通俗来说，NVS 就是在  flash 上分配的一块内存空间 ，提供给用户保存掉电不丢失的数据 。进入主题，我们需要将esp32连接WiFi，此时使用为WIFI STATION模式，下面给">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/log/esp32_http/1.png">
+<meta property="og:image" content="http://example.com/log/esp32_http/2.png">
+<meta property="article:published_time" content="2024-03-19T10:50:19.000Z">
+<meta property="article:modified_time" content="2024-03-19T12:15:17.966Z">
+<meta property="article:author" content="ZYBPP">
+<meta property="article:tag" content="物联网">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="半成品">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/log/esp32_http/1.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>esp32通过wifi进行http请求获得天气信息（半成品） - 流水不争先</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mac.css%20/custom_diy/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>ZYBPP</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="esp32通过wifi进行http请求获得天气信息（半成品）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-19 18:50" pubdate>
+          2024年3月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">esp32通过wifi进行http请求获得天气信息（半成品）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="本次使用的开发板为和宙esp32c3，使用的IDE为vscode-espidf程序整体流程：以下为程序详解"><a href="#本次使用的开发板为和宙esp32c3，使用的IDE为vscode-espidf程序整体流程：以下为程序详解" class="headerlink" title="本次使用的开发板为和宙esp32c3，使用的IDE为vscode+espidf程序整体流程：以下为程序详解"></a><em>本次使用的开发板为和宙esp32c3，使用的IDE为vscode+espidf</em><br><strong>程序整体流程：</strong><br><img src="/../log/esp32_http/1.png" srcset="/img/loading.gif" lazyload alt="流程图" title="流程图"><br>以下为程序详解</h2><h2 id="WiFi连接"><a href="#WiFi连接" class="headerlink" title="WiFi连接"></a>WiFi连接</h2><p>首先使能nvs，将等下使用的WiFi账号及密码储存到nvs上</p>
+<blockquote>
+<p>NVS介绍：<a target="_blank" rel="noopener" href="https://docs.espressif.com/projects/esp-idf/zh_CN/v4.3.2/esp32c3/api-reference/storage/nvs_flash.html">官方介绍</a>比较繁杂。通俗来说，NVS 就是在 </p>
+<p>flash 上分配的一块内存空间 ，<em>提供给用户保存掉电不丢失的数据</em> 。<br>进入主题，我们需要将esp32连接WiFi，此时使用为<strong>WIFI STATION</strong>模式，下面给出官方步骤<br><img src="/../log/esp32_http/2.png" srcset="/img/loading.gif" lazyload alt="官方流程" title="官方流程"></p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_netif_init</span>());                      <span class="hljs-comment">//01-1 创建LWIP核心任务</span><br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_event_loop_create_default</span>());       <span class="hljs-comment">//01-2 创建系统事件任务</span><br><span class="hljs-built_in">esp_netif_create_default_wifi_sta</span>();                    <span class="hljs-comment">//01-3 创建station实例</span><br><span class="hljs-type">wifi_init_config_t</span> cfg = <span class="hljs-built_in">WIFI_INIT_CONFIG_DEFAULT</span>();<br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_wifi_init</span>(&amp;cfg));                   <span class="hljs-comment">//01-4 创建wifi驱动程序任务，并初始化wifi驱动程序</span><br>                                                        <span class="hljs-comment">//01-5 注册，用于处理wifi连接的过程中的事件</span><br><span class="hljs-type">esp_event_handler_instance_t</span> instance_any_id;           <span class="hljs-comment">//用于处理wifi连接时候的事件的句柄</span><br><span class="hljs-type">esp_event_handler_instance_t</span> instance_got_ip;           <span class="hljs-comment">//用于处理ip分配时候产生的事件的句柄</span><br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_event_handler_instance_register</span>(WIFI_EVENT,   <span class="hljs-comment">//该句柄对wifi连接所有事件都产生响应，连接到event_handler回调函数</span><br>    ESP_EVENT_ANY_ID,<br>    &amp;event_handler,<br>    <span class="hljs-literal">NULL</span>,<br>    &amp;instance_any_id));<br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_event_handler_instance_register</span>(IP_EVENT,   <span class="hljs-comment">//该句柄仅仅处理IP_EVENT事件组中的获取ip地址事件，连接到event_handler回调函数</span><br>    IP_EVENT_STA_GOT_IP, <br>    &amp;event_handler,<br>    <span class="hljs-literal">NULL</span>,<br>    &amp;instance_got_ip));<br><br><span class="hljs-number">02</span> WIFI配置阶段<br><span class="hljs-comment">//02-1 定义wifi配置参数</span><br><span class="hljs-type">wifi_config_t</span> wifi_config;                                          <span class="hljs-comment">//定义wifi配置参数结构体</span><br><span class="hljs-built_in">memset</span>(&amp;wifi_config, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(wifi_config));                       <span class="hljs-comment">//对结构体进行初始化，把参数全部定义为0</span><br><span class="hljs-built_in">sprintf</span>((<span class="hljs-type">char</span>*)wifi_config.sta.ssid, EXAMPLE_ESP_WIFI_SSID);        <span class="hljs-comment">//配置wifi名称              </span><br><span class="hljs-built_in">sprintf</span>((<span class="hljs-type">char</span>*)wifi_config.sta.password, EXAMPLE_ESP_WIFI_PASS);    <span class="hljs-comment">//配置wifi密码</span><br>wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;            <span class="hljs-comment">//配置加密协议</span><br>wifi_config.sta.pmf_cfg.capable = <span class="hljs-literal">true</span>;                             <br>wifi_config.sta.pmf_cfg.required = <span class="hljs-literal">false</span>;<br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_wifi_set_mode</span>(WIFI_MODE_STA));                  <span class="hljs-comment">//02-2 配置wifi工作模式</span><br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_wifi_set_config</span>(WIFI_IF_STA, &amp;wifi_config));    <span class="hljs-comment">//02-3 写入配置</span><br><br><span class="hljs-comment">//03 wifi启动阶段</span><br><span class="hljs-comment">//03-1 启动wifi驱动程序</span><br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_wifi_start</span>());   <span class="hljs-comment">//会触发回调函数</span><br><span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;wifi_init_sta finished.&quot;</span>);<br><br><span class="hljs-comment">//04 等待wifi连接并输出wifi连接结果   </span><br>EventBits_t bits = <span class="hljs-built_in">xEventGroupWaitBits</span>(s_wifi_event_group,<br>    WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,<br>    pdFALSE,<br>    pdFALSE,<br>    portMAX_DELAY);<br><br>    <span class="hljs-keyword">if</span> (bits &amp; WIFI_CONNECTED_BIT) &#123;<br>        <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;connected to ap SSID:%s password:%s&quot;</span>,<br>            EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (bits &amp; WIFI_FAIL_BIT) &#123;<br>        <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;Failed to connect to SSID:%s, password:%s&quot;</span>,<br>            EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);<br>    &#125;<br>    <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;UNEXPECTED EVENT&quot;</span>);<br>    &#125;<br><br><span class="hljs-comment">//05  事件解绑定</span><br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_event_handler_instance_unregister</span>(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));<br><span class="hljs-built_in">ESP_ERROR_CHECK</span>(<span class="hljs-built_in">esp_event_handler_instance_unregister</span>(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));<br><span class="hljs-built_in">vEventGroupDelete</span>(s_wifi_event_group);<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>下面是WiFi回调函数</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">event_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>* arg, <span class="hljs-type">esp_event_base_t</span> event_base,</span></span><br><span class="hljs-params"><span class="hljs-function">    <span class="hljs-type">int32_t</span> event_id, <span class="hljs-type">void</span>* event_data)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (event_base == WIFI_EVENT &amp;&amp; event_id == WIFI_EVENT_STA_START) &#123;   <span class="hljs-comment">//如果是wifi连接事件，就进行wifi连接</span><br>        <span class="hljs-built_in">esp_wifi_connect</span>();<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (event_base == WIFI_EVENT &amp;&amp; event_id == WIFI_EVENT_STA_DISCONNECTED) &#123;  <span class="hljs-comment">//如果是wifi连接失败事件</span><br>        <span class="hljs-keyword">if</span> (s_retry_num &lt; EXAMPLE_ESP_MAXIMUM_RETRY) &#123;   <span class="hljs-comment">//如果没有达到最高尝试次数，继续尝试</span><br>            <span class="hljs-built_in">esp_wifi_connect</span>();<br>            s_retry_num++;<br>            <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;retry to connect to the AP&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">xEventGroupSetBits</span>(s_wifi_event_group, WIFI_FAIL_BIT);   <span class="hljs-comment">//如果达到了最高尝试次数，就停止尝试，并且标记连接失败</span><br>        &#125;<br>        <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;connect to the AP fail&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (event_base == IP_EVENT &amp;&amp; event_id == IP_EVENT_STA_GOT_IP) &#123;     <span class="hljs-comment">//如果是ip获取事件，获取到了ip就打印出来</span><br>        <span class="hljs-type">ip_event_got_ip_t</span>* event = (<span class="hljs-type">ip_event_got_ip_t</span>*)event_data;<br>        <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;got ip:&quot;</span> IPSTR, <span class="hljs-built_in">IP2STR</span>(&amp;event-&gt;ip_info.ip));<br>        s_retry_num = <span class="hljs-number">0</span>;<br>        <span class="hljs-built_in">xEventGroupSetBits</span>(s_wifi_event_group, WIFI_CONNECTED_BIT);    <span class="hljs-comment">//如果成功获取到了ip，就标记这次wifi连接成功</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="连接服务器并发送请求解析返回数据"><a href="#连接服务器并发送请求解析返回数据" class="headerlink" title="连接服务器并发送请求解析返回数据"></a>连接服务器并发送请求解析返回数据</h2><blockquote>
+<p><strong>使用了esp_http_client库</strong><a target="_blank" rel="noopener" href="https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/api-reference/protocols/esp_http_client.html">官方介绍</a></p>
+</blockquote>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">http_test_task</span><span class="hljs-params">(<span class="hljs-type">void</span> *pvParameters)</span></span><br><span class="hljs-function"></span>&#123;<br><br><span class="hljs-comment">//02-1 定义需要的变量</span><br>    <span class="hljs-type">char</span> output_buffer[MAX_HTTP_OUTPUT_BUFFER] = &#123;<span class="hljs-number">0</span>&#125;;   <span class="hljs-comment">//用于接收通过http协议返回的数据</span><br>    <span class="hljs-type">int</span> content_length = <span class="hljs-number">0</span>;  <span class="hljs-comment">//http协议头的长度</span><br><br>    <span class="hljs-comment">//02-2 配置http结构体</span><br>   <br>   <span class="hljs-comment">//定义http配置结构体，并且进行清零</span><br>    <span class="hljs-type">esp_http_client_config_t</span> config ;<br>    <span class="hljs-built_in">memset</span>(&amp;config,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(config));<br><br>    <span class="hljs-comment">//向配置结构体内部写入url</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *URL = <span class="hljs-string">&quot;http://api.seniverse.com/v3/weather/now.json?key=SCoom38PWDOGScGYt&amp;location=zhengzhou&amp;language=zh-Hans&amp;unit=c&quot;</span>;<br>    config.url = URL;<br><br>    <span class="hljs-comment">//初始化结构体</span><br>    <span class="hljs-type">esp_http_client_handle_t</span> client = <span class="hljs-built_in">esp_http_client_init</span>(&amp;config);	<span class="hljs-comment">//初始化http连接</span><br><br>    <span class="hljs-comment">//设置发送请求 </span><br>    <span class="hljs-built_in">esp_http_client_set_method</span>(client, HTTP_METHOD_GET);<br><br>    <span class="hljs-comment">//02-3 循环通讯</span><br><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;<br><br>    <span class="hljs-comment">// 与目标主机创建连接，并且声明写入内容长度为0</span><br>    <span class="hljs-type">esp_err_t</span> err = <span class="hljs-built_in">esp_http_client_open</span>(client, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-comment">//如果连接失败</span><br>    <span class="hljs-keyword">if</span> (err != ESP_OK) &#123;<br>        <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Failed to open HTTP connection: %s&quot;</span>, <span class="hljs-built_in">esp_err_to_name</span>(err));<br>    &#125; <br>    <span class="hljs-comment">//如果连接成功</span><br>    <span class="hljs-keyword">else</span> &#123;<br><br>        <span class="hljs-comment">//读取目标主机的返回内容的协议头</span><br>        content_length = <span class="hljs-built_in">esp_http_client_fetch_headers</span>(client);<br><br>        <span class="hljs-comment">//如果协议头长度小于0，说明没有成功读取到</span><br>        <span class="hljs-keyword">if</span> (content_length &lt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;HTTP client fetch headers failed&quot;</span>);<br>        &#125; <br><br>        <span class="hljs-comment">//如果成功读取到了协议头</span><br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">//读取目标主机通过http的响应内容</span><br>            <span class="hljs-type">int</span> data_read = <span class="hljs-built_in">esp_http_client_read_response</span>(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);<br>            <span class="hljs-keyword">if</span> (data_read &gt;= <span class="hljs-number">0</span>)<br>            &#123;<br>            <span class="hljs-comment">//打印响应内容，包括响应状态，响应体长度及其内容</span><br>            <span class="hljs-built_in">ESP_LOGI</span>(TAG, <span class="hljs-string">&quot;HTTP GET Status = %d, content_length = %lld&quot;</span>,<br>            <span class="hljs-built_in">esp_http_client_get_status_code</span>(client),				<span class="hljs-comment">//获取响应状态信息</span><br>            <span class="hljs-built_in">esp_http_client_get_content_length</span>(client));			<span class="hljs-comment">//获取响应信息长度</span><br>            <span class="hljs-comment">// printf(&quot;data:%s\n&quot;, output_buffer);</span><br>            <span class="hljs-comment">//对接收到的数据作相应的处理</span><br>            cJSON* root = <span class="hljs-literal">NULL</span>;<br>            root = <span class="hljs-built_in">cJSON_Parse</span>(output_buffer);<br>            <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">NULL</span>) &#123;<br>                <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Error parsing JSON data!&quot;</span>);<br>            <br>            &#125;<br><br>            cJSON *results = <span class="hljs-built_in">cJSON_GetObjectItem</span>(root, <span class="hljs-string">&quot;results&quot;</span>);<br>            <span class="hljs-keyword">if</span> (results == <span class="hljs-literal">NULL</span>) &#123;<br>                <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Failed to get &#x27;results&#x27; object!&quot;</span>);<br>                <span class="hljs-built_in">cJSON_Delete</span>(root);<br>            <br>            &#125;<br><br>            cJSON *location = <span class="hljs-built_in">cJSON_GetObjectItem</span>(results-&gt;child, <span class="hljs-string">&quot;location&quot;</span>);<br>            <span class="hljs-keyword">if</span> (location == <span class="hljs-literal">NULL</span>) &#123;<br>                <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Failed to get &#x27;location&#x27; object!&quot;</span>);<br>                <span class="hljs-built_in">cJSON_Delete</span>(root);<br>                <br>            &#125;<br><br>            cJSON *now = <span class="hljs-built_in">cJSON_GetObjectItem</span>(results-&gt;child, <span class="hljs-string">&quot;now&quot;</span>);<br>            <span class="hljs-keyword">if</span> (now == <span class="hljs-literal">NULL</span>) &#123;<br>                <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Failed to get &#x27;now&#x27; object!&quot;</span>);<br>                <span class="hljs-built_in">cJSON_Delete</span>(root);<br>            <br>            &#125;<br><br>            <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name = <span class="hljs-built_in">cJSON_GetObjectItem</span>(location, <span class="hljs-string">&quot;name&quot;</span>)-&gt;valuestring;<br>            <span class="hljs-type">const</span> <span class="hljs-type">char</span> *text = <span class="hljs-built_in">cJSON_GetObjectItem</span>(now, <span class="hljs-string">&quot;text&quot;</span>)-&gt;valuestring;<br>            <span class="hljs-type">const</span> <span class="hljs-type">char</span> *temperature = <span class="hljs-built_in">cJSON_GetObjectItem</span>(now, <span class="hljs-string">&quot;temperature&quot;</span>)-&gt;valuestring;<br><br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Location: %s&quot;</span>, name);<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Weather: %s&quot;</span>, text);<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Temperature: %s&quot;</span>, temperature);<br>            &#125; <br>            <span class="hljs-comment">//如果不成功</span><br>            <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;Failed to read response&quot;</span>);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">//关闭连接</span><br>    <span class="hljs-built_in">esp_http_client_close</span>(client);<br><br>    <span class="hljs-comment">//延时，因为心知天气免费版本每分钟只能获取20次数据</span><br>    <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">3000</span>/portTICK_PERIOD_MS);<br><br>    &#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>简单记录下，物联网刚刚入门各种协议还不明白暂时说不清楚。<br>关于http协议的，补充完知识后详细记录</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/esp32%E5%BC%80%E5%8F%91/" class="category-chain-item">esp32开发</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%89%A9%E8%81%94%E7%BD%91/" class="print-no-link">#物联网</a>
+      
+        <a href="/tags/http/" class="print-no-link">#http</a>
+      
+        <a href="/tags/%E5%8D%8A%E6%88%90%E5%93%81/" class="print-no-link">#半成品</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>esp32通过wifi进行http请求获得天气信息（半成品）</div>
+      <div>http://example.com/2024/03/19/esp32http/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZYBPP</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/19/%E5%BE%85%E9%98%85%E7%9B%AE%E5%BD%95/" title="待阅目录">
+                        <span class="hidden-mobile">待阅目录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"ic14MGADrdYa8v5bKNgum3zJ-gzGzoHsz","appKey":"r1iI6EDyBy9wEPxZshza7BBq","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"https://ic14mgad.lc-cn-n1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div>WZX的博客 | 学习及日常记录</div> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  
+<script src="/custom_diy/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
