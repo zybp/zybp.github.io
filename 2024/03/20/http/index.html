@@ -1,0 +1,824 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/1.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZYBPP">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="书接上文esp32通过wifi进行http请求获得天气信息本文为http协议详解 并通过套接字（socket）方法进行httpGET请求  简介HTTP:HTTP协议(超文本传输协议HyperText Transfer Protocol)，它是基于TCP协议的应用层传输协议，简单来说就是客户端和服务端进行数据传输的一种规则。为典型的CS应用,HTTP 是一种无状态 (stateless) 协议,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="http协议详解">
+<meta property="og:url" content="http://example.com/2024/03/20/http/index.html">
+<meta property="og:site_name" content="流水不争先">
+<meta property="og:description" content="书接上文esp32通过wifi进行http请求获得天气信息本文为http协议详解 并通过套接字（socket）方法进行httpGET请求  简介HTTP:HTTP协议(超文本传输协议HyperText Transfer Protocol)，它是基于TCP协议的应用层传输协议，简单来说就是客户端和服务端进行数据传输的一种规则。为典型的CS应用,HTTP 是一种无状态 (stateless) 协议,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/log/http/1.jpg">
+<meta property="og:image" content="http://example.com/log/http/2.jpg">
+<meta property="og:image" content="http://example.com/log/http/3.jpg">
+<meta property="og:image" content="http://example.com/log/http/4.jpg">
+<meta property="og:image" content="http://example.com/log/http/5.jpg">
+<meta property="article:published_time" content="2024-03-20T05:18:03.000Z">
+<meta property="article:modified_time" content="2024-03-20T06:09:57.687Z">
+<meta property="article:author" content="ZYBPP">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="esp32">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/log/http/1.jpg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>http协议详解 - 流水不争先</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mac.css%20/custom_diy/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":100,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>ZYBPP</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="http协议详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-20 13:18" pubdate>
+          2024年3月20日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">http协议详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>书接上文<a target="_blank" rel="noopener" href="https://zybp.github.io/2024/03/19/esp32http/">esp32通过wifi进行http请求获得天气信息</a><br>本文为http协议详解 并通过套接字（socket）方法进行httpGET请求</p>
+</blockquote>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>HTTP:<code>HTTP</code>协议(超文本传输协议HyperText Transfer Protocol)，它是基于TCP协议的应用层传输协议，简单来说就是客户端和服务端进行数据传输的一种规则。为典型的CS应用,HTTP 是一种无状态 (stateless) 协议, HTTP协议本身不会对发送过的请求和相应的通信状态进行持久化处理。这样做的目的是为了保持HTTP协议的简单性，从而能够快速处理大量的事务, 提高效率。</p>
+<blockquote>
+<p>注意：客户端与服务器的角色不是固定的，一端充当客户端，也可能在某次请求中充当服务器。这取决与请求的发起端。HTTP协议属于应用层，建立在传输层协议TCP之上。客户端通过与服务器建立TCP连接，之后发送HTTP请求与接收HTTP响应都是通过访问Socket接口来调用TCP协议实现。</p>
+</blockquote>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><h2 id="HTTP-URL"><a href="#HTTP-URL" class="headerlink" title="HTTP URL"></a>HTTP URL</h2><p>HTTP URL 包含了用于查找某个资源的详细信息, 格式如下:<br>    <a href="http://host[":"port][abs_path]">http://host[&quot;:&quot;port][abs_path]</a></p>
+<h2 id="HTTP请求"><a href="#HTTP请求" class="headerlink" title="HTTP请求"></a>HTTP请求</h2><p><img src="/../log/http/1.jpg" srcset="/img/loading.gif" lazyload><br>由上图可以看到，http请求由请求行，消息报头，请求正文三部分构成。</p>
+<h3 id="请求行"><a href="#请求行" class="headerlink" title="请求行"></a>请求行</h3><p>最上面一行为请求行。<br>请求行由请求Method, URL 字段和HTTP Version三部分构成, 总的来说请求行就是定义了本次请求的请求方式, 请求的地址, 以及所遵循的HTTP协议版本例如：<br>    GET &#x2F;example.html HTTP&#x2F;1.1 (CRLF)</p>
+<blockquote>
+<p>HTTP协议的方法有： GET： 请求获取Request-URI所标识的资源 POST： 在Request-URI所标识的资源后增加新的数据 HEAD： 请求获取由Request-URI所标识的资源的响应消息报头 PUT： 请求服务器存储或修改一个资源，并用Request-URI作为其标识 DELETE： 请求服务器删除Request-URI所标识的资源 TRACE： 请求服务器回送收到的请求信息，主要用于测试或诊断 CONNECT： 保留将来使用 OPTIONS： 请求查询服务器的性能，或者查询与资源相关的选项和需求</p>
+</blockquote>
+<p><strong>其中example.html为路径部分，不是完整的URL（被这点小问题折磨一天）</strong></p>
+<h3 id="HTTP请求报头"><a href="#HTTP请求报头" class="headerlink" title="HTTP请求报头"></a>HTTP请求报头</h3><p>消息报头由一系列的键值对组成，允许客户端向服务器端发送一些附加信息或者客户端自身的信息，主要包括：<br><img src="/../log/http/2.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="HTTP请求正文"><a href="#HTTP请求正文" class="headerlink" title="HTTP请求正文"></a>HTTP请求正文</h3><p>只有在发送POST请求时才会有请求正文，当请求方法为GET时，请求正文省略。</p>
+<h3 id="HTTP请求报文"><a href="#HTTP请求报文" class="headerlink" title="HTTP请求报文"></a>HTTP请求报文</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-keyword">static</span> const char <span class="hljs-operator">*</span><span class="hljs-type">REQUEST</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;GET /simpleWeather/query?city=郑州&amp;key=9bcb73de14725f3cdb5801159d461863 HTTP/1.1<span class="hljs-subst">\r</span><span class="hljs-subst">\n</span>&quot;</span><br>                             <span class="hljs-string">&quot;Host: apis.juhe.cn<span class="hljs-subst">\r</span><span class="hljs-subst">\n</span>&quot;</span><br>                             <span class="hljs-string">&quot;Connection: close<span class="hljs-subst">\r</span><span class="hljs-subst">\n</span><span class="hljs-subst">\r</span><span class="hljs-subst">\n</span>&quot;</span>;<br><br></code></pre></td></tr></table></figure>
+<h2 id="HTTP响应"><a href="#HTTP响应" class="headerlink" title="HTTP响应"></a>HTTP响应</h2><p>也先上图<img src="/../log/http/3.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="HTTP响应状态行"><a href="#HTTP响应状态行" class="headerlink" title="HTTP响应状态行"></a>HTTP响应状态行</h3><p>状态行也由三部分组成，包括HTTP协议的版本，状态码，以及对状态码的文本描述。例如：<br>    HTTP&#x2F;1.1 200 OK （CRLF）</p>
+<h3 id="HTTP响应状态码"><a href="#HTTP响应状态码" class="headerlink" title="HTTP响应状态码"></a>HTTP响应状态码</h3><p>状态代码有三位数字组成，第一个数字定义了响应的类别，且有五种可能取值：</p>
+<ol>
+<li><code>1xx</code>：指示信息 - 表示请求已接收，继续处理 </li>
+<li><code>2xx</code>：成功 - 表示请求已被成功接收、理解、接受</li>
+<li><code>3xx</code>：重定向 - 要完成请求必须进行更进一步的操作 </li>
+<li><code>4xx</code>：客户端错误 - 请求有语法错误或请求无法实现 </li>
+<li><code>5xx</code>服务器端错误 - 服务器未能实现合法的请求<blockquote>
+<p>常见状态代码、状态描述、说明： 200： OK - 客户端请求成功 400： Bad Request - 客户端请求有语法错误，不能被服务器所理解 401： Unauthorized - 请求未经授权，这个状态代码必须和WWW-Authenticate报头域一起使用 403： Forbidden - 服务器收到请求，但是拒绝提供服务 404： Not Found - 请求资源不存在，eg：输入了错误的URL 500： Internal Server Error - 服务器发生不可预期的错误 * 503： Server Unavailable - 服务器当前不能处理客户端的请求，一段时间后,可能恢复正常<br><img src="/../log/http/4.jpg" srcset="/img/loading.gif" lazyload alt="HTTP响应状态码" title="HTTP响应状态码"></p>
+</blockquote>
+</li>
+</ol>
+<h3 id="HTTP响应报文"><a href="#HTTP响应报文" class="headerlink" title="HTTP响应报文"></a>HTTP响应报文</h3><p><img src="/../log/http/5.jpg" srcset="/img/loading.gif" lazyload alt="1" title="5"></p>
+<h1 id="实现HTTP请求的方法步骤-以esp32为例"><a href="#实现HTTP请求的方法步骤-以esp32为例" class="headerlink" title="实现HTTP请求的方法步骤(以esp32为例)"></a>实现HTTP请求的方法步骤(以esp32为例)</h1><h2 id="方法-来自ChatGPT"><a href="#方法-来自ChatGPT" class="headerlink" title="方法 来自ChatGPT"></a>方法 <em>来自ChatGPT</em></h2><ol>
+<li>使用HTTP库：许多编程语言和平台都提供了用于HTTP请求的内置或第三方库。这些库通常封装了Socket API，并提供了更高级的接口来方便地执行HTTP请求和处理响应。例如，在C语言中，你可以使用libcurl、libhttp、libmicrohttpd等库来执行HTTP请求。</li>
+<li>使用HTTP客户端库：许多编程语言和平台都提供了专门用于执行HTTP请求的HTTP客户端库。这些库通常提供了更高级的API，用于构建和发送HTTP请求，并处理响应。例如，Python中的Requests库、JavaScript中的Axios库等。</li>
+<li>使用网络框架：许多网络框架和服务器框架提供了HTTP客户端功能，可以用于执行HTTP请求。这些框架通常提供了简单易用的API，用于发送HTTP请求和处理响应。例如，Node.js中的Express框架、Java中的Spring框架等。</li>
+<li>使用系统级API：某些操作系统提供了系统级的API来执行HTTP请求。这些API通常是在操作系统网络栈的底层实现，因此可以直接与网络通信进行交互。例如，Windows平台提供了WinINet API、Linux平台提供了cURL库等。</li>
+<li>最接近底层的实现是使用Socket API。尽管其他方法提供了更高级的抽象和易用性，但它们最终都会使用Socket API或类似的底层网络接口来进行实际的网络通信。</li>
+</ol>
+<p><strong>本次来讲socket方法进行http请求</strong></p>
+<h2 id="socket请求步骤-来自ChatGPT"><a href="#socket请求步骤-来自ChatGPT" class="headerlink" title="socket请求步骤 来自ChatGPT"></a>socket请求步骤 <em>来自ChatGPT</em></h2><ol>
+<li>创建Socket连接：首先，你需要创建一个Socket连接到服务器。使用 socket() 函数来创建一个Socket描述符。</li>
+<li>解析主机名：如果你使用主机名来连接服务器，你需要将主机名解析为IP地址。可以使用 getaddrinfo() 函数来实现。它会将主机名解析为一个或多个地址结构。</li>
+<li>连接服务器：使用 connect() 函数将Socket连接到服务器。需要提供服务器的IP地址和端口号。</li>
+<li>构建HTTP请求：构建符合HTTP协议规范的请求。通常，这包括构建请求行、请求头和请求体。请求行包括请求方法（如GET、POST）、请求的URI和HTTP版本。请求头包括一些关于请求的元信息，如Host、Content-Type等。请求体包括发送给服务器的数据（如果有的话）。</li>
+<li>发送HTTP请求：使用 send() 函数发送构建好的HTTP请求到服务器。</li>
+<li>接收HTTP响应：使用 recv() 函数从服务器接收HTTP响应。你可以一次性接收全部响应，也可以分块接收。</li>
+<li>解析HTTP响应：解析接收到的HTTP响应，包括状态行、响应头和响应体。状态行包括HTTP版本、状态码和状态消息。响应头包括服务器的一些元信息，如Content-Type、Content-Length等。响应体包括服务器返回的实际数据。</li>
+<li>关闭Socket连接：当你完成HTTP请求和响应后，使用 close() 函数关闭Socket连接。</li>
+</ol>
+<p>贴个代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">https_get_task</span><span class="hljs-params">(<span class="hljs-type">void</span> *pvParameters)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">addrinfo</span> hints = &#123;<br>        .ai_family = AF_INET,<br>        .ai_socktype = SOCK_STREAM,<br>    &#125;;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">addrinfo</span> *res;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">in_addr</span> *addr;<br>    <span class="hljs-type">int</span> s, r;<br>    <span class="hljs-type">char</span> recv_buf[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">char</span> mid_buf[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">int</span> index;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-comment">//DNS域名解析</span><br>        <span class="hljs-type">int</span> err = <span class="hljs-built_in">getaddrinfo</span>(WEB_SERVER, WEB_PORT, &amp;hints, &amp;res);<br>        <span class="hljs-keyword">if</span>(err != <span class="hljs-number">0</span> || res == <span class="hljs-literal">NULL</span>) &#123;<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;DNS lookup failed err=%d res=%p\r\n&quot;</span>, err, res);<br>            <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">1000</span> / portTICK_PERIOD_MS);<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-comment">//打印获取的IP</span><br>        addr = &amp;((<span class="hljs-keyword">struct</span> sockaddr_in *)res-&gt;ai_addr)-&gt;sin_addr;<br>        <span class="hljs-comment">//ESP_LOGI(HTTP_TAG, &quot;DNS lookup succeeded. IP=%s\r\n&quot;, inet_ntoa(*addr));</span><br><br>        <span class="hljs-comment">//新建socket</span><br>        s = <span class="hljs-built_in">socket</span>(res-&gt;ai_family, res-&gt;ai_socktype, <span class="hljs-number">0</span>);<br>        <span class="hljs-keyword">if</span>(s &lt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;... Failed to allocate socket.\r\n&quot;</span>);<br>            <span class="hljs-built_in">close</span>(s);<br>            <span class="hljs-built_in">freeaddrinfo</span>(res);<br>            <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">1000</span> / portTICK_PERIOD_MS);<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-comment">//连接ip</span><br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">connect</span>(s, res-&gt;ai_addr, res-&gt;ai_addrlen) != <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;... socket connect failed errno=%d\r\n&quot;</span>, errno);<br>            <span class="hljs-built_in">close</span>(s);<br>            <span class="hljs-built_in">freeaddrinfo</span>(res);<br>            <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">4000</span> / portTICK_PERIOD_MS);<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-built_in">freeaddrinfo</span>(res);<br>        <span class="hljs-comment">//发送http包</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">write</span>(s, REQUEST, <span class="hljs-built_in">strlen</span>(REQUEST)) &lt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">ESP_LOGE</span>(TAG, <span class="hljs-string">&quot;... socket send failed\r\n&quot;</span>);<br>            <span class="hljs-built_in">close</span>(s);<br>            <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">4000</span> / portTICK_PERIOD_MS);<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-comment">//清缓存</span><br>        <span class="hljs-built_in">memset</span>(mid_buf,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(mid_buf));<br>        <span class="hljs-comment">//获取http应答包</span><br>        <span class="hljs-keyword">do</span> &#123;<br>            <span class="hljs-built_in">bzero</span>(recv_buf, <span class="hljs-built_in">sizeof</span>(recv_buf));<br>            r = <span class="hljs-built_in">read</span>(s, recv_buf, <span class="hljs-built_in">sizeof</span>(recv_buf)<span class="hljs-number">-1</span>);<br>            <span class="hljs-built_in">strcat</span>(mid_buf,recv_buf);<br>        &#125; <span class="hljs-keyword">while</span>(r &gt; <span class="hljs-number">0</span>);<br>        <span class="hljs-comment">//json解析</span><br>        <span class="hljs-built_in">cjson_to_struct_info</span>(mid_buf);<br>        <span class="hljs-comment">//关闭socket，http是短连接</span><br>        <span class="hljs-built_in">close</span>(s);<br><br>        <span class="hljs-comment">//延时一会</span><br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> countdown = <span class="hljs-number">10</span>; countdown &gt;= <span class="hljs-number">0</span>; countdown--) &#123;<br>            <span class="hljs-built_in">vTaskDelay</span>(<span class="hljs-number">1000</span> / portTICK_PERIOD_MS);<br>        &#125;<br>    &#125;<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%8F%E8%AE%AE/" class="category-chain-item">协议</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%8D%8F%E8%AE%AE/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" class="category-chain-item">网络协议</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/http/" class="print-no-link">#http</a>
+      
+        <a href="/tags/esp32/" class="print-no-link">#esp32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>http协议详解</div>
+      <div>http://example.com/2024/03/20/http/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZYBPP</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/19/esp32http/" title="esp32通过wifi进行http请求获得天气信息（半成品）">
+                        <span class="hidden-mobile">esp32通过wifi进行http请求获得天气信息（半成品）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"ic14MGADrdYa8v5bKNgum3zJ-gzGzoHsz","appKey":"r1iI6EDyBy9wEPxZshza7BBq","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"https://ic14mgad.lc-cn-n1-shared.com","emojiCDN":null,"emojiMaps":null,"enableQQ":true},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div>WZX的博客 | 学习及日常记录</div> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  
+<script src="/custom_diy/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
