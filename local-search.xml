@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>Makefile编写规则</title>
+    <link href="/2024/03/20/Makefile%E7%BC%96%E5%86%99%E8%A7%84%E5%88%99/"/>
+    <url>/2024/03/20/Makefile%E7%BC%96%E5%86%99%E8%A7%84%E5%88%99/</url>
+    
+    <content type="html"><![CDATA[<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile">KDIR := /lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build<br>pwd := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br>obj-m := helloworld.o<br><span class="hljs-section">all:</span><br>        make -C <span class="hljs-variable">$(KDIR)</span> M=<span class="hljs-variable">$(PWD)</span> modules<br></code></pre></td></tr></table></figure><pre><code class="hljs">KDIR := /lib/modules/$(shell uname -r)/build</code></pre><p><strong>这行代码是一个 Makefile 中的变量赋值语句，用于指定内核源码的路径。</strong></p><ol><li><code>KDIR </code>是一个变量，用于存储内核源码的路径。</li><li><code>:= </code>操作符用于进行变量的赋值，它会立即展开变量的值。</li><li><code>/lib/modules/$(shell uname -r)/build</code> 是一个路径，它使用了<code> $(shell uname -r)</code> 命令来获取当前系统正在运行的内核版本，并将其用于构建内核源码的路径。<br><strong>因此，这行代码的作用是定义一个变量 KDIR，并将其设置为当前系统正在运行的内核版本对应的内核源码路径。通常，这个路径会是 &#x2F;lib&#x2F;modules&#x2F;当前内核版本&#x2F;build。</strong><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile">pwd := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br></code></pre></td></tr></table></figure></li></ol><p><strong>这行代码是一个 Makefile 中的变量赋值语句，用于获取当前工作目录的路径并将其存储在一个变量中。</strong></p><ol><li><code>pwd </code>是一个变量名，它用于存储当前工作目录的路径。</li><li><code>:= </code>操作符用于进行变量的赋值，它会立即展开变量的值。</li><li><code>$(shell pwd)</code> 是一个命令替换，它会执行 pwd 命令以获取当前工作目录的路径，并将其返回作为变量的值。<br><strong>因此，这行代码的作用是定义一个变量 pwd，并将其设置为当前工作目录的路径。</strong><figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fix"><span class="hljs-attr">obj-m :</span>=<span class="hljs-string"> helloworld.o</span><br></code></pre></td></tr></table></figure><strong>这行代码是一个 Makefile 中的变量赋值语句，用于指定要编译的内核模块的源文件。</strong></li><li><code>obj-m</code> 是一个内核模块编译时的特殊变量，它告诉内核构建系统需要编译的模块。</li><li><code>:=</code> 操作符用于进行变量的赋值，它会立即展开变量的值。</li><li><code>helloworld.o</code> 是要编译的内核模块的源文件。这意味着在当前目录下应该有一个名为<code>helloworld.c</code>或者 <code>helloworld.cpp</code> 的源文件，它将被编译成名为<code>helloworld.o</code>的目标文件，作为一个内核模块进行加载。<br><strong>通常，obj-m 变量用于告诉内核构建系统要编译哪些模块。每个模块都会对应一个 .o 文件，这些文件最终会被链接到内核中，成为可加载的内核模块。</strong><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">make <span class="hljs-literal">-C</span> <span class="hljs-variable">$</span>(KDIR) M=<span class="hljs-variable">$</span>(<span class="hljs-built_in">PWD</span>) modules<br></code></pre></td></tr></table></figure><strong>这个命令是一个 make 命令，用于在指定的内核源码目录 <code>($(KDIR))</code> 中编译当前目录 <code>($(PWD))</code> 下的模块。这通常用于编译 Linux 内核模块。</strong><br><strong>具体来说：</strong></li><li>make 是一个构建工具，用于执行 Makefile 中定义的规则。</li><li><code>-C $(KDIR)</code> 指定了要进入的目录，即内核源码目录。</li><li><code>M=$(PWD)</code> 指定了要编译的模块所在的目录，即当前目录。</li><li><code>modules </code>是 Makefile 中的一个目标，表示要编译模块。s<br><strong>因此，这个命令会进入内核源码目录，执行内核源码目录中的 Makefile 中的规则，编译当前目录下的模块。</strong></li></ol>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>http协议详解</title>
     <link href="/2024/03/20/http/"/>
     <url>/2024/03/20/http/</url>
